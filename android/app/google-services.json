@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "259293313676",
+    "project_id": "drive-app-936f3",
+    "storage_bucket": "drive-app-936f3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:259293313676:android:d228306a17b35a01b619a9",
+        "android_client_info": {
+          "package_name": "com.example.drive_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvAOwG-jilnoEsoDWYmBCTuJhD6cLs_GQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
