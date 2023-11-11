@@ -1,13 +1,16 @@
 import 'dart:io';
+import 'package:drive_app/Features/Auth/Screens/Repositry/authRepo.dart';
 import 'package:drive_app/Features/HomeScreen/Repository/imagepost_repo.dart';
 import 'package:drive_app/Model/folder_creation.dart';
 import 'package:drive_app/Model/image_model.dart';
+import 'package:drive_app/Model/userModel.dart';
 import 'package:drive_app/Providers/storage_provider.dart';
 import 'package:drive_app/Themes/pallete.dart';
 import 'package:drive_app/constants/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uuid/uuid.dart';
 
 final imageRepoConProvider = StateNotifierProvider<ImagePostCon, bool>((ref) {
@@ -84,7 +87,8 @@ class ImagePostCon extends StateNotifier<bool> {
         print(l);
       }
     }, (r) async {
-      final ImagePost imagePost = ImagePost(id: id, url: r, name: fileName);
+      final ImagePost imagePost =
+          ImagePost(id: id, url: r, name: fileName, uploadTime: DateTime.now());
 
       final res = await _imagePostRepo.addImage(imagePost);
       state = false;
@@ -112,7 +116,8 @@ class ImagePostCon extends StateNotifier<bool> {
   }
 
   Stream<List<ImagePost>> getFolderImages(String folderId) {
-    return _imagePostRepo.getFolderImages(folderId);
+    UserModel userModel = _ref.read(userProvider)!;
+    return _imagePostRepo.getFolderImages(folderId, userModel.uid);
   }
 
   //Folder work here
@@ -121,6 +126,7 @@ class ImagePostCon extends StateNotifier<bool> {
     required String folderName,
   }) async {
     state = true;
+    UserModel userModel = _ref.read(userProvider)!;
 
     String folderId = const Uuid().v4();
 
@@ -133,7 +139,7 @@ class ImagePostCon extends StateNotifier<bool> {
       folderName: folderName,
     );
 
-    final res = await _imagePostRepo.addNewFolder(folderCreate);
+    final res = await _imagePostRepo.addNewFolder(folderCreate, userModel.uid);
     state = false;
 
     res.fold((l) {
@@ -154,7 +160,10 @@ class ImagePostCon extends StateNotifier<bool> {
 
   void deleteFolder(
       {required String folderID, required BuildContext context}) async {
-    final res = await _imagePostRepo.deleteFolder(folderID);
+    state = true;
+    UserModel userModel = _ref.read(userProvider)!;
+    final res = await _imagePostRepo.deleteFolder(folderID, userModel.uid);
+    state = false;
     res.fold((l) {
       showsnackBars(context, l.message, Pallete.redColor);
       if (kDebugMode) {
@@ -164,6 +173,7 @@ class ImagePostCon extends StateNotifier<bool> {
       deleteSelectedImages(context, folderID);
 
       if (kDebugMode) {
+        print(folderID);
         print("Deleted Succesfully");
       }
 
@@ -179,11 +189,14 @@ class ImagePostCon extends StateNotifier<bool> {
   //
 
   Stream<FolderCreate> getParticularFolderDeatils({required String folderID}) {
-    return _imagePostRepo.getParticularFolderDeatils(folderID);
+    UserModel userModel = _ref.read(userProvider)!;
+    // print(object)
+    return _imagePostRepo.getParticularFolderDeatils(folderID, userModel.uid);
   }
 
   Stream<List<FolderCreate>> getFolders() {
-    return _imagePostRepo.getFolders();
+    UserModel userModel = _ref.read(userProvider)!;
+    return _imagePostRepo.getFolders(userModel.uid);
   }
 
   // add image to particular folder
@@ -197,6 +210,7 @@ class ImagePostCon extends StateNotifier<bool> {
   }) async {
     state = true;
     String id = const Uuid().v1();
+    UserModel userModel = _ref.read(userProvider)!;
 
     final imageRes = await _storageRepository.storeFile(
       path: "postedImage",
@@ -212,9 +226,14 @@ class ImagePostCon extends StateNotifier<bool> {
         print(l);
       }
     }, (r) async {
-      final ImagePost imagePost = ImagePost(id: id, url: r, name: fileName);
+      final ImagePost imagePost =
+          ImagePost(id: id, url: r, name: fileName, uploadTime: DateTime.now());
 
-      final res = await _imagePostRepo.addImageToFolder(imagePost, folderId);
+      final res = await _imagePostRepo.addImageToFolder(
+        imagePost,
+        folderId,
+        userModel.uid,
+      );
       state = false;
       if (kDebugMode) {
         print("PATH is $r");
@@ -230,12 +249,13 @@ class ImagePostCon extends StateNotifier<bool> {
           print("ss");
         }
         Navigator.pop(context);
-        showsnackBars(context, "Successfully Created 🤟", Pallete.greenColor);
+        showsnackBars(context, "Successfully Added 🥳 🤟", Pallete.greenColor);
       });
     });
   }
 
   void deleteSelectedImages(BuildContext context, String folderId) async {
+    UserModel userModel = _ref.read(userProvider)!;
     final selectedImages =
         List<String>.from(_ref.read(selectedImagesProvider.notifier).state);
 
@@ -243,7 +263,8 @@ class ImagePostCon extends StateNotifier<bool> {
       if (kDebugMode) {
         print("This is in controller part id $img");
       }
-      final res = await _imagePostRepo.deleteSelectedImages(folderId, img);
+      final res = await _imagePostRepo.deleteSelectedImages(
+          folderId, img, userModel.uid);
 
       res.fold((l) {
         showsnackBars(context, l.message, Pallete.redColor);
@@ -262,5 +283,32 @@ class ImagePostCon extends StateNotifier<bool> {
     }
     // Clear the original list
     _ref.read(selectedImagesProvider.notifier).state.clear();
+  }
+
+  void editFolderName({
+    required String folderId,
+    required String updatedFName,
+    required BuildContext context,
+  }) async {
+    UserModel userModel = _ref.read(userProvider)!;
+    final res = await _imagePostRepo.editFolderName(
+        folderId, userModel.uid, updatedFName);
+
+    res.fold(
+        (l) => {
+              Fluttertoast.showToast(
+                  msg: "Folder name cannot be updated!!😥",
+                  textColor: Pallete.whiteColor,
+                  backgroundColor: Pallete.redColor),
+            },
+        (r) => {
+              print("Controller FolderName${updatedFName}"),
+              print("Controller FOlderID${folderId}"),
+              Navigator.pop(context),
+              Fluttertoast.showToast(
+                  msg: "Folder name updated!!🥳",
+                  textColor: Pallete.blackColor,
+                  backgroundColor: Pallete.greenColor),
+            });
   }
 }

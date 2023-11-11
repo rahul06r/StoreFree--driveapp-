@@ -33,7 +33,7 @@ dependencies:
 
 
   # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
+  # Use with the CupertinoIcons class for iOS style icons.j
   cupertino_icons: ^1.0.2
   flutter_riverpod: ^2.4.0
   firebase_core: 
@@ -42,28 +42,60 @@ dependencies:
   firebase_auth: 
   fpdart:
   file_picker:
-  uuid: ^4.0.0
+  uuid: 
   dotted_border:
+  routemaster:
   insta_image_viewer: ^1.0.2
   flutter_pdfview: ^1.3.1
   # 
   material_segmented_control: ^5.0.0
-  # pdf_thumbnail: ^0.1.5+1
+  pdf_thumbnail: ^0.1.5+1
   flutter_slidable: ^3.0.0
   intl: ^0.18.1
   pdf: ^3.10.4
   path_provider:
   permission_handler:
-  
+  cached_network_image: ^3.3.0
+  url_launcher:
    
   printing: ^5.11.0
-  easy_pdf_viewer: ^1.0.7 
+  
   video_player: ^2.7.2
+  gallery_saver: ^2.3.2
+  fluttertoast: ^8.2.2
+  dio: ^5.3.3
+  clipboard: ^0.1.3
+  
+  flutter_cached_pdfview: ^0.4.2
+
+  
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/playstore.png"
+  min_sdk_android: 21 
+  # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/playstore.png"
+    background_color: "#fff"
+    theme_color: "#FF9900"
+  windows:
+    generate: true
+    image_path: "assets/playstore.png"
+    icon_size: 48
+     # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/playstore.png"
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

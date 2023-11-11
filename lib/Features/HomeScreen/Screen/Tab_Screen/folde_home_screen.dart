@@ -84,18 +84,18 @@ class _FolderHomeScreenState extends ConsumerState<FolderHomeScreen> {
             //       );
             //     });
           },
-          backgroundColor: Pallete.purpleColor,
+          backgroundColor: Pallete.yellowColor,
           heroTag: const Text("Add"),
           child: const Icon(
             Icons.add,
-            color: Pallete.whiteColor,
+            color: Pallete.blackColor,
             size: 30,
           ),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 5),
+            // const SizedBox(height: 5),
             ref.watch(getFoldersProvider).when(
                   data: (data) {
                     if (data.isEmpty) {
@@ -134,6 +134,7 @@ class _FolderHomeScreenState extends ConsumerState<FolderHomeScreen> {
                                   onLongPress: () {
                                     if (kDebugMode) {
                                       print("Delete");
+                                      print(folder.folderId);
                                     }
                                     showDialog(
                                         context: context,
@@ -221,9 +222,9 @@ class _FolderHomeScreenState extends ConsumerState<FolderHomeScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => ViewFolderImage(
-                                          folderId: folder.folderId,
-                                          folderName: folder.folderName,
+                                          folder.folderName,
                                           number: folder.noOfImages,
+                                          folderId: folder.folderId,
                                         ),
                                       ),
                                     );

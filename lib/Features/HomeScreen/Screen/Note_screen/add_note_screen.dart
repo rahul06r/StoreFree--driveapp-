@@ -37,24 +37,24 @@ class _AddNoteScreenState extends ConsumerState<AddNoteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: Pallete.whiteColor),
+        iconTheme: const IconThemeData(color: Pallete.blackColor),
         automaticallyImplyLeading: true,
-        backgroundColor: Pallete.purpleColor,
+        backgroundColor: Pallete.yellowColor,
         title: const Text(
           "Add Note",
           style:
-              TextStyle(color: Pallete.whiteColor, fontWeight: FontWeight.w700),
+              TextStyle(color: Pallete.blackColor, fontWeight: FontWeight.w700),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         label: const Text(
           "Save",
           style:
-              TextStyle(color: Pallete.whiteColor, fontWeight: FontWeight.w600),
+              TextStyle(color: Pallete.blackColor, fontWeight: FontWeight.w600),
         ),
         icon: const Icon(
           Icons.save,
-          color: Pallete.whiteColor,
+          color: Pallete.blackColor,
         ),
         onPressed: () {
           if (_nametextEditingController.text.isNotEmpty &&
@@ -71,7 +71,7 @@ class _AddNoteScreenState extends ConsumerState<AddNoteScreen> {
             showsnackBars(context, "Fill All the fields", Pallete.blackColor);
           }
         },
-        backgroundColor: Pallete.purpleColor,
+        backgroundColor: Pallete.yellowColor,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -86,6 +86,10 @@ class _AddNoteScreenState extends ConsumerState<AddNoteScreen> {
                 maxLines: 1,
                 maxLength: 150,
                 decoration: InputDecoration(
+                    hintText: "Title here",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                    ),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10))),
               ),
@@ -96,6 +100,12 @@ class _AddNoteScreenState extends ConsumerState<AddNoteScreen> {
                 controller: _desctextEditingController,
                 maxLines: null,
                 decoration: InputDecoration(
+                    hintText: "Description here",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                    ),
+                    // label: Text("Description"),
+
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10))),
               ),

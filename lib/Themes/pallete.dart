@@ -8,5 +8,7 @@ class Pallete {
   static const otherImageBgColor = Color.fromARGB(255, 214, 192, 218);
   static const redColor = Colors.red;
   static const greenColor = Colors.green;
+  static const deepOrangeColor = Colors.deepOrange;
   static const folderBG = Color.fromARGB(255, 247, 239, 239);
+  static const yellowColor = Color.fromRGBO(255, 163, 26, 1);
 }

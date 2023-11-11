@@ -8,14 +8,17 @@ import 'package:drive_app/constants/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ViewFolderImage extends ConsumerStatefulWidget {
-  final String folderName;
   final String folderId;
+  String folderName;
   final int number;
-  const ViewFolderImage({
+  ViewFolderImage(
+    this.folderName, {
     super.key,
-    required this.folderName,
+    // required
     required this.folderId,
     required this.number,
   });
@@ -28,9 +31,11 @@ class ViewFolderImage extends ConsumerStatefulWidget {
 class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
   bool isSingleSelectedMenu = false;
   bool isCheckedDelete = false;
+  TextEditingController _folderNameEdit = TextEditingController();
   @override
   void initState() {
     isCheckedDelete = false;
+    _folderNameEdit.text = widget.folderName;
     super.initState();
   }
 
@@ -38,6 +43,24 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
     ref
         .read(imageRepoConProvider.notifier)
         .deleteFolder(folderID: folderID, context: context);
+  }
+
+  void updateFolderName(
+    String folderId,
+    String updatedFName,
+  ) {
+    ref.read(imageRepoConProvider.notifier).editFolderName(
+          folderId: folderId,
+          updatedFName: updatedFName,
+          context: context,
+        );
+    setState(() {});
+    // widget.folderName = _folderNameEdit.text;
+
+    // Update widget.folderName directly within the callback
+    // setState(() {
+    //   widget.folderName = _folderNameEdit.text;
+    // });
   }
 
   @override
@@ -48,15 +71,37 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor:
-            isSingleSelectedMenu ? Pallete.redColor : Pallete.purpleColor,
-        iconTheme: const IconThemeData(color: Pallete.whiteColor),
+            isSingleSelectedMenu ? Pallete.redColor : Pallete.yellowColor,
+        iconTheme: const IconThemeData(color: Pallete.blackColor),
         automaticallyImplyLeading: true,
-        title: Text(
-          widget.folderName,
-          style: const TextStyle(
-            color: Pallete.whiteColor,
+        title: TextField(
+          controller: _folderNameEdit,
+          onTapOutside: (e) {
+            setState(() {
+              _folderNameEdit.text = widget.folderName;
+            });
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          expands: false,
+          readOnly: true,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            disabledBorder: InputBorder.none,
+            // enabled: false,
+            border: InputBorder.none,
           ),
         ),
+        //  particularFolder.value!.folderName.
+        // ?
+        //  Text(
+        //     particularFolder.value!.folderName,
+        //     // widget.folderName,
+        //     style: const TextStyle(
+        //       color: Pallete.blackColor,
+        //     ),
+        //   )
+        // :
+
         actions: [
           PopupMenuButton<String>(
             onSelected: (String choice) {
@@ -157,6 +202,96 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
                         );
                       });
                     });
+              } else if (choice == 'Edit_Name') {
+                showDialog(
+                    useSafeArea: true,
+                    context: context,
+                    builder: (context) {
+                      return SimpleDialog(
+                        backgroundColor: Pallete.yellowColor,
+                        children: [
+                          SizedBox(height: 12),
+                          Center(
+                            child: Text(
+                              "Folder Name Edit",
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Pallete.blackColor),
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: TextField(
+                              // enabled: false,
+                              controller: _folderNameEdit,
+                              maxLines: null,
+                              onTapOutside: (e) {
+                                setState(() {});
+                                FocusManager.instance.primaryFocus?.unfocus();
+                              },
+                              decoration: InputDecoration(
+                                  focusColor: Pallete.blackColor,
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Pallete.blackColor)),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Pallete.blackColor),
+                                  ),
+                                  hintText: "Folder Name",
+                                  hintStyle: TextStyle(
+                                    fontSize: 18,
+                                  ),
+                                  // label: Text("Description"),
+
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10))),
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          Center(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                fixedSize: Size(120, 30),
+                                backgroundColor: Pallete.blackColor,
+                              ),
+                              onPressed: () {
+                                print("Pressed Updated button");
+                                updateFolderName(
+                                    widget.folderId, _folderNameEdit.text);
+                                // Navigator.pop(context);
+
+                                // setState(() {
+                                //   // widget.folderName = _folderNameEdit.text;
+                                //   // print("inside setstae");
+                                //   // print(
+                                //   //     "folder name scree     ${_folderNameEdit.text}");
+                                //   // print(
+                                //   //     "folder name scree     ${widget.folderName}");
+                                // });
+                              },
+                              child: Text(
+                                "Update",
+                                style: TextStyle(
+                                  color: Pallete.whiteColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                        ],
+                      );
+                    });
+              } else if (choice == 'Lock_Folder') {
+                Fluttertoast.showToast(
+                    fontSize: 20,
+                    msg: "Will bring this feature very soon 😎",
+                    toastLength: Toast.LENGTH_LONG,
+                    backgroundColor: Pallete.deepOrangeColor,
+                    textColor: Pallete.whiteColor,
+                    gravity: ToastGravity.CENTER);
               } else {}
             },
             itemBuilder: (BuildContext context) {
@@ -167,9 +302,20 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
                       ? const Text('Deselect')
                       : const Text('Select'),
                 ),
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
+                  enabled: isSingleSelectedMenu ? false : true,
                   value: "Delete",
                   child: Text('Delete Folder'),
+                ),
+                PopupMenuItem<String>(
+                  enabled: isSingleSelectedMenu ? false : true,
+                  value: "Edit_Name",
+                  child: Text('Edit Name'),
+                ),
+                PopupMenuItem<String>(
+                  enabled: isSingleSelectedMenu ? false : true,
+                  value: "Lock_Folder",
+                  child: Text('Lock Folder'),
                 ),
               ];
             },
@@ -178,7 +324,7 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor:
-            selectedImages.isNotEmpty ? Pallete.redColor : Pallete.purpleColor,
+            selectedImages.isNotEmpty ? Pallete.redColor : Pallete.yellowColor,
         onPressed: () {
           if (isSingleSelectedMenu) {
             ref
@@ -201,7 +347,7 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
         },
         child: Icon(
           selectedImages.isNotEmpty ? Icons.delete : Icons.add,
-          color: Pallete.whiteColor,
+          color: Pallete.blackColor,
         ),
       ),
       body: Column(
@@ -210,8 +356,7 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
           ref.watch(getFolderImagesProvider(widget.folderId)).when(
               data: (data) {
                 if (data.isEmpty) {
-                  return SizedBox(
-                    height: MediaQuery.of(context).size.height * .6,
+                  return Expanded(
                     child: const Center(
                         child: Text(
                       "Store Now ; Because its Free \n 😜❤️‍🔥",
@@ -236,7 +381,8 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
 
                       bool isSelected = selectedImages.contains(image.id);
                       if (kDebugMode) {
-                        print(image.name);
+                        // print(image.name);
+                        // print(image.url);
                       }
                       return Container(
                           // height: 600,
@@ -255,16 +401,19 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
                                           if (kDebugMode) {
                                             print("Delete");
                                           }
+                                          print("Pressed ${image.url}");
                                         },
                                         onTap: () {
                                           if (kDebugMode) {
-                                            print("Pressed");
+                                            print("Pressed ${image.url}");
+                                            print("Pressed ${widget.folderId}");
                                           }
 
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) => NextScreen(
+                                                name: image.name,
                                                 image: image.url,
                                                 ispdf:
                                                     image.name.contains(".pdf"),
@@ -290,10 +439,17 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
                                                 : image.name.contains(".jpg") ||
                                                         image.name
                                                             .contains(".png")
-                                                    ? Image.network(
-                                                        image.url,
-                                                        fit: BoxFit.cover,
-                                                      )
+                                                    ? CachedNetworkImage(
+                                                        imageUrl: image.url,
+                                                        placeholder: (context,
+                                                                url) =>
+                                                            const Center(
+                                                                child:
+                                                                    CircularProgressIndicator()),
+                                                        errorWidget: (context,
+                                                                url, error) =>
+                                                            const Icon(
+                                                                Icons.error))
                                                     : Image.asset(
                                                         "assets/image2.png",
                                                         fit: BoxFit.fill,

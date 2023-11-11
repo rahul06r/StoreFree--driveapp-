@@ -31,8 +31,10 @@ class ImagePostRepo {
 
   CollectionReference get _folderName =>
       _firebaseFirestore.collection(FirebaseConstants.folderName);
+  CollectionReference get _users =>
+      _firebaseFirestore.collection(FirebaseConstants.userCollection);
 
-//
+//if u want the image to be in outside the  folder
   FutureVoid addImage(ImagePost post) async {
     try {
       return right(
@@ -45,7 +47,7 @@ class ImagePostRepo {
     }
   }
 
-  //
+  ////if u want the image to be in outside the  folder
 
   Stream<List<ImagePost>> getImages() {
     return _images.snapshots().map(
@@ -55,16 +57,20 @@ class ImagePostRepo {
         );
   }
 
-  // folder part
+  // folder part inside
 
-  FutureVoid addNewFolder(FolderCreate folder) async {
+  FutureVoid addNewFolder(FolderCreate folder, String uID) async {
     try {
       // var foldersNameExist = await _folderName.doc(folder.folderName).get();
-      var foldersNameExist = await _folderName
+      // var foldersNameExist = await _folderName
+      //     .where('folderName', isEqualTo: folder.folderName)
+      //     .get();
+
+      var foldersNameExist = await _users
+          .doc(uID)
+          .collection("folder")
           .where('folderName', isEqualTo: folder.folderName)
           .get();
-
-      print(foldersNameExist);
 
       if (foldersNameExist.docs.isNotEmpty) {
         // print("Folder name exists");
@@ -72,10 +78,17 @@ class ImagePostRepo {
         throw "Folder Name Already Exists 🙄";
       } else {
         return right(
-          _folderName.doc(folder.folderId).set(
-                folder.toMap(),
-              ),
+          _users
+              .doc(uID)
+              .collection("folder")
+              .doc(folder.folderId)
+              .set(folder.toMap()),
         );
+        // return right(
+        //   _folderName.doc(folder.folderId).set(
+        //         folder.toMap(),
+        //       ),
+        // );
       }
     } catch (e) {
       return left(
@@ -86,29 +99,52 @@ class ImagePostRepo {
 
   // delete the folder
 
-  FutureVoid deleteFolder(String folderID) async {
+  FutureVoid deleteFolder(String folderID, String uID) async {
     try {
+      print("${folderID} is deleted");
       return right(
-        _folderName.doc(folderID).delete().then((value) {
-          // deleteSelectedImages(
-
-          // ),
-        }),
+        _users.doc(uID).collection("folder").doc(folderID).delete(),
       );
+      // return right(
+      //   _folderName.doc(folderID).delete().then((value) {
+      //     // deleteSelectedImages(
+
+      //     // ),
+      //   }),
+      // );
     } catch (e) {
       return left(Failure(e.toString()));
     }
   }
 
-  Stream<FolderCreate> getParticularFolderDeatils(String folderID) {
-    return _folderName.doc(folderID).snapshots().map(
+  // Stream<FolderCreate> getParticularFolderDeatils(String folderID, String uID) {
+  //   // return right(_users
+  //   //     .doc(uID)
+  //   //     .collection("folder")
+  //   //     .doc(folderID)
+  //   //     .snapshots()
+  //   //     .map((event) =>
+  //   //         FolderCreate.fromMap(event.data() as Map<String, dynamic>)));
+
+  //   return _folderName.doc(folderID).snapshots().map(
+  //       (event) => FolderCreate.fromMap(event.data() as Map<String, dynamic>));
+  // }
+  Stream<FolderCreate> getParticularFolderDeatils(String folderID, String uID) {
+    return _users.doc(uID).collection("folder").doc(folderID).snapshots().map(
         (event) => FolderCreate.fromMap(event.data() as Map<String, dynamic>));
+
+    // think about implementing right(use try catch once) ......!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   }
 
-  Stream<List<FolderCreate>> getFolders() {
-    return _folderName.snapshots().map((event) => event.docs
+  Stream<List<FolderCreate>> getFolders(String uID) {
+    return _users.doc(uID).collection("folder").snapshots().map((event) => event
+        .docs
         .map((e) => FolderCreate.fromMap(e.data() as Map<String, dynamic>))
         .toList());
+
+    // return _folderName.snapshots().map((event) => event.docs
+    //     .map((e) => FolderCreate.fromMap(e.data() as Map<String, dynamic>))
+    //     .toList());
   }
 
   // add image to paricular folder
@@ -127,47 +163,110 @@ class ImagePostRepo {
   // }),
 
   //
-  FutureVoid addImageToFolder(ImagePost post, String folderId) async {
+  FutureVoid addImageToFolder(
+      ImagePost post, String folderId, String uID) async {
     try {
-      return right(
-        _folderName
+      return right(_users
+          .doc(uID)
+          .collection("folder")
+          .doc(folderId)
+          .collection("images")
+          .doc(post.id)
+          .set(post.toMap())
+          .then((value) {
+        _users
+            .doc(uID)
+            .collection("folder")
             .doc(folderId)
-            .collection("images")
-            .doc(post.id)
-            .set(post.toMap())
-            .then((value) {
-          _folderName.doc(folderId).update({
-            "noOfImages": FieldValue.increment(1),
-          });
-        }),
-      );
+            .update({"noOfImages": FieldValue.increment(1)});
+      }));
+
+      // chnage it to folder collection above
+      // return right(
+      //   _folderName
+      //       .doc(folderId)
+      //       .collection("images")
+      //       .doc(post.id)
+      //       .set(post.toMap())
+      //       .then((value) {
+      //     _folderName.doc(folderId).update({
+      //       "noOfImages": FieldValue.increment(1),
+      //     });
+      //   }),
+      // );
     } catch (e) {
       return left(Failure(e.toString()));
     }
   }
 
   //
-  Stream<List<ImagePost>> getFolderImages(String folderId) {
-    return _folderName.doc(folderId).collection("images").snapshots().map(
-        (event) => event.docs
+  Stream<List<ImagePost>> getFolderImages(String folderId, String uID) {
+    return _users
+        .doc(uID)
+        .collection("folder")
+        .doc(folderId)
+        .collection("images")
+        .orderBy("uploadTime", descending: true)
+        .snapshots()
+        .map((event) => event.docs
             .map((e) => ImagePost.fromMap(e.data() as Map<String, dynamic>))
             .toList());
+
+    // return _folderName
+    //     .doc(folderId)
+    //     .collection("images")
+    //     .orderBy("uploadTime", descending: true)
+    //     .snapshots()
+    //     .map((event) => event.docs
+    //         .map((e) => ImagePost.fromMap(e.data() as Map<String, dynamic>))
+    //         .toList());
   }
 
-  FutureVoid deleteSelectedImages(String folderId, String imgID) async {
+  FutureVoid deleteSelectedImages(
+      String folderId, String imgID, String uID) async {
+    try {
+      return right(_users
+          .doc(uID)
+          .collection("folder")
+          .doc(folderId)
+          .collection("images")
+          .doc(imgID)
+          .delete()
+          .then((value) {
+        _users
+            .doc(uID)
+            .collection("folder")
+            .doc(folderId)
+            .update({"noOfImages": FieldValue.increment(-1)}).then((value) {
+          _storage.ref().child("postedImage").child(imgID).delete();
+        });
+      }));
+
+      // return right(
+      //   _folderName
+      //       .doc(folderId)
+      //       .collection("images")
+      //       .doc(imgID)
+      //       .delete()
+      //       .then((value) {
+      //     _folderName.doc(folderId).update({
+      //       "noOfImages": FieldValue.increment(-1),
+      //     });
+      //   }).then((value) {
+      //     _storage.ref().child("postedImage").child(imgID).delete();
+      //   }),
+      // );
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  FutureVoid editFolderName(
+      String folderId, String uID, String updatedFName) async {
     try {
       return right(
-        _folderName
-            .doc(folderId)
-            .collection("images")
-            .doc(imgID)
-            .delete()
-            .then((value) {
-          _folderName.doc(folderId).update({
-            "noOfImages": FieldValue.increment(-1),
-          });
-        }).then((value) {
-          _storage.ref().child("postedImage").child(imgID).delete();
+        _users.doc(uID).collection("folder").doc(folderId).update({
+          "folderName": updatedFName,
         }),
       );
     } catch (e) {

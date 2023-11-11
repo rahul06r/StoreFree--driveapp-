@@ -3,4 +3,5 @@ class FirebaseConstants {
   static const folderName = "folder";
 
   static const noteCollection = "notes";
+  static const userCollection = "users";
 }

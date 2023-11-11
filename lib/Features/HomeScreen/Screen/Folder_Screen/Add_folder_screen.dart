@@ -36,14 +36,14 @@ class _AddFolderScreenState extends ConsumerState<AddFolderScreen> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
-          color: Pallete.whiteColor,
+          color: Pallete.blackColor,
         ),
-        backgroundColor: Pallete.purpleColor,
+        backgroundColor: Pallete.yellowColor,
         automaticallyImplyLeading: true,
         title: const Text(
           "Folders",
           style: TextStyle(
-            color: Pallete.whiteColor,
+            color: Pallete.blackColor,
           ),
         ),
       ),
@@ -57,6 +57,17 @@ class _AddFolderScreenState extends ConsumerState<AddFolderScreen> {
                 FocusManager.instance.primaryFocus!.unfocus();
               },
               controller: _textEditingController,
+              onSubmitted: (e) {
+                if (e.isNotEmpty && _textEditingController.text.isNotEmpty) {
+                  createFolder();
+                  _focusNode.unfocus();
+                  _textEditingController.clear();
+                } else {
+                  showsnackBars(
+                      context, "Enter the folder name", Pallete.redColor);
+                  _focusNode.unfocus();
+                }
+              },
               decoration: InputDecoration(
                 suffixIcon: IconButton(
                     onPressed: () {
@@ -76,7 +87,7 @@ class _AddFolderScreenState extends ConsumerState<AddFolderScreen> {
                 enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: const BorderSide(
-                      color: Pallete.purpleColor,
+                      color: Pallete.blackColor,
                     )),
                 labelText: "Folder Name",
               ),

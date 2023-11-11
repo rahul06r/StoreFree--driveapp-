@@ -1,0 +1,13 @@
+1) Add the Share feature options
+2) Add the oublic and private option for folder.
+3) Add Color for the Note Background.
+
+
+
+
+
+
+///check processs
+
+1) chnage to original usermodel in coontroller and flutter_riverpod
+2) for personal app check for logut feature.

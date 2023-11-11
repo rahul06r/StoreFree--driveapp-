@@ -4,6 +4,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:drive_app/Features/HomeScreen/Controllers/imagepost_controller.dart';
@@ -65,14 +66,14 @@ class _AddImageFolderState extends ConsumerState<AddImageFolder> {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
-          color: Pallete.whiteColor,
+          color: Pallete.blackColor,
         ),
-        backgroundColor: Pallete.purpleColor,
+        backgroundColor: Pallete.yellowColor,
         automaticallyImplyLeading: true,
         title: const Text(
           "Add Now",
           style: TextStyle(
-            color: Pallete.whiteColor,
+            color: Pallete.blackColor,
           ),
         ),
       ),
@@ -150,10 +151,17 @@ class _AddImageFolderState extends ConsumerState<AddImageFolder> {
                                           Text(imgesName)
                                         ],
                                       )
-                                    : Image.file(
-                                        img,
-                                        fit: BoxFit.fill,
-                                      ),
+                                    : img.path.contains(".mp4")
+                                        ? Column(
+                                            children: [
+                                              Image.asset("assets/video4.png"),
+                                              Text(imgesName)
+                                            ],
+                                          )
+                                        : Image.file(
+                                            img,
+                                            fit: BoxFit.fill,
+                                          ),
                               ),
                             ),
                           ),
@@ -167,17 +175,24 @@ class _AddImageFolderState extends ConsumerState<AddImageFolder> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          if (image != null) {
+          if (image.isNotEmpty) {
             shareImage();
           } else {
-            Navigator.pop(context);
+            Fluttertoast.showToast(
+                msg: "Add a PDF / Image / Video 🧐 🧐",
+                toastLength: Toast.LENGTH_SHORT,
+                backgroundColor: Pallete.redColor,
+                textColor: Pallete.whiteColor,
+                gravity: ToastGravity.CENTER,
+                fontSize: 18);
+            // Navigator.pop(context);
           }
         },
-        backgroundColor: Pallete.purpleColor,
+        backgroundColor: Pallete.yellowColor,
         heroTag: const Text("Add"),
         child: const Icon(
           Icons.check,
-          color: Pallete.whiteColor,
+          color: Pallete.blackColor,
           size: 30,
         ),
       ),
