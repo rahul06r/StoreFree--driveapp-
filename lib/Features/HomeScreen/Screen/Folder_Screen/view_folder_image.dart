@@ -422,6 +422,8 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
                                                 isImage: image.name
                                                         .contains(".jpg") ||
                                                     image.name.contains(".png"),
+                                                isZip:
+                                                    image.name.contains(".zip"),
                                               ),
                                             ),
                                           );
@@ -450,10 +452,16 @@ class _ViewFolderImageState extends ConsumerState<ViewFolderImage> {
                                                                 url, error) =>
                                                             const Icon(
                                                                 Icons.error))
-                                                    : Image.asset(
-                                                        "assets/image2.png",
-                                                        fit: BoxFit.fill,
-                                                      ),
+                                                    : image.name
+                                                            .contains(".zip")
+                                                        ? Image.asset(
+                                                            "assets/zip1.png",
+                                                            fit: BoxFit.fill,
+                                                          )
+                                                        : Image.asset(
+                                                            "assets/image2.png",
+                                                            fit: BoxFit.fill,
+                                                          ),
                                       ),
                                     ),
 

@@ -158,10 +158,17 @@ class _AddImageFolderState extends ConsumerState<AddImageFolder> {
                                               Text(imgesName)
                                             ],
                                           )
-                                        : Image.file(
-                                            img,
-                                            fit: BoxFit.fill,
-                                          ),
+                                        : img.path.contains(".zip")
+                                            ? Column(
+                                                children: [
+                                                  Image.asset("assets/zip.png"),
+                                                  Text(imgesName)
+                                                ],
+                                              )
+                                            : Image.file(
+                                                img,
+                                                fit: BoxFit.fill,
+                                              ),
                               ),
                             ),
                           ),

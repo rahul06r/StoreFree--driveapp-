@@ -17,6 +17,7 @@ class NextScreen extends StatefulWidget {
   final bool ispdf;
   final bool ismp4;
   final bool isImage;
+  final bool isZip;
   final String image;
   const NextScreen({
     super.key,
@@ -24,6 +25,7 @@ class NextScreen extends StatefulWidget {
     required this.ispdf,
     required this.ismp4,
     required this.isImage,
+    required this.isZip,
     required this.name,
   });
 
@@ -89,78 +91,40 @@ class _NextScreenState extends State<NextScreen> {
           actions: [
             // !widget.ismp4
             //     ?
-            IconButton(
-                onPressed: () async {
-                  print("Download ${widget.image.split("?")[0].toString()}");
-                  print("Download Actual ${widget.image}");
-                  try {
-                    // some error in download patch of MP4
+            widget.isZip
+                ? Container()
+                : IconButton(
+                    onPressed: () async {
+                      print(
+                          "Download ${widget.image.split("?")[0].toString()}");
+                      print("Download Actual ${widget.image}");
+                      try {
+                        // some error in download patch of MP4
 
-                    if (widget.ispdf || widget.isImage) {
-                      downloadFunctionforIVP();
-                    } else {
-                      // child:
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return SimpleDialog(
-                              title: Center(
-                                child: Text(
-                                  "Copy the Link",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          widget.image,
-                                          maxLines: 1,
-                                          //  textScaler: ,
-                                          overflow: TextOverflow.clip,
-                                        ),
-                                      ),
-                                    ),
-                                    IconButton(
-                                        onPressed: () {
-                                          FlutterClipboard.copy(widget.image)
-                                              .then((value) {
-                                            Fluttertoast.showToast(
-                                                msg: "Link Copied",
-                                                backgroundColor:
-                                                    Pallete.greenColor);
-                                          });
-                                        },
-                                        icon: Icon(
-                                          Icons.copy,
-                                          color: Pallete.blackColor,
-                                          size: 25,
-                                        )),
-                                  ],
-                                ),
-                              ],
-                            );
-                          });
+                        if (widget.ispdf || widget.isImage) {
+                          downloadFunctionforIVP();
+                        } else {
+                          // child:
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return DownloadWidget(widget: widget);
+                              });
 
-                      Fluttertoast.showToast(
-                          toastLength: Toast.LENGTH_SHORT,
-                          msg:
-                              "Video cannot be downloaded for now,the feature will roll out soon!!",
-                          backgroundColor: Pallete.redColor);
-                      print("MP4 still not discovered");
-                    }
-                  } catch (e) {
-                    print(e.toString());
-                  }
-                },
-                icon: Icon(
-                  Icons.download_rounded,
-                ))
+                          Fluttertoast.showToast(
+                              toastLength: Toast.LENGTH_SHORT,
+                              msg:
+                                  "Video cannot be downloaded for now,the feature will roll out soon!!",
+                              backgroundColor: Pallete.redColor);
+                          print("MP4 still not discovered");
+                        }
+                      } catch (e) {
+                        print(e.toString());
+                      }
+                    },
+                    icon: Icon(
+                      Icons.download_rounded,
+                    ))
             // : Container(),
           ],
         ),
@@ -187,31 +151,121 @@ class _NextScreenState extends State<NextScreen> {
                         : const Center(
                             child: CircularProgressIndicator(),
                           )
-                    : InstaImageViewer(
-                        backgroundIsTransparent: true,
-                        disableSwipeToDismiss: true,
-                        disposeLevel: DisposeLevel.high,
-                        child: CachedNetworkImage(
-                          imageUrl: widget.image,
-                          placeholder: (context, url) =>
-                              const Center(child: CircularProgressIndicator()),
-                          errorWidget: (context, url, error) => const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                // Text(
-                                //   "Cannot open !! right now!",
-                                //   style: TextStyle(color: Pallete.whiteColor),
-                                // ),
-                                Icon(
-                                  Icons.error,
-                                  color: Pallete.whiteColor,
+                    : (widget.isZip)
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Center(
+                                  child: Text(
+                                "Cannot show the deatils of zip !!",
+                                maxLines: 2,
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              )),
+                              SizedBox(height: 15),
+                              IconButton(
+                                  onPressed: () {
+                                    showDialog(
+                                        useSafeArea: true,
+                                        context: context,
+                                        builder: (context) {
+                                          return DownloadWidget(widget: widget);
+                                        });
+                                  },
+                                  icon: Icon(
+                                    Icons.download_for_offline,
+                                    size: 50,
+                                    color: Pallete.yellowColor,
+                                  ))
+                            ],
+                          )
+                        : InstaImageViewer(
+                            backgroundIsTransparent: true,
+                            disableSwipeToDismiss: true,
+                            disposeLevel: DisposeLevel.high,
+                            child: CachedNetworkImage(
+                              imageUrl: widget.image,
+                              placeholder: (context, url) => const Center(
+                                  child: CircularProgressIndicator()),
+                              errorWidget: (context, url, error) =>
+                                  const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // Text(
+                                    //   "Cannot open !! right now!",
+                                    //   style: TextStyle(color: Pallete.whiteColor),
+                                    // ),
+                                    Icon(
+                                      Icons.error,
+                                      color: Pallete.whiteColor,
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      )));
+                          )));
+  }
+}
+
+class DownloadWidget extends StatelessWidget {
+  const DownloadWidget({
+    super.key,
+    required this.widget,
+  });
+
+  final NextScreen widget;
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      backgroundColor: Pallete.yellowColor,
+      title: Center(
+        child: Text(
+          "Copy the Link",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  widget.image,
+                  maxLines: 1,
+                  //  textScaler: ,
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+            ),
+            IconButton(
+                onPressed: () {
+                  FlutterClipboard.copy(widget.image).then((value) {
+                    Fluttertoast.showToast(
+                        msg: "Link Copied",
+                        backgroundColor: Pallete.greenColor);
+                  });
+                },
+                icon: Icon(
+                  Icons.copy,
+                  color: Pallete.blackColor,
+                  size: 25,
+                )),
+          ],
+        ),
+        Center(
+          child: Text(
+            "to download 😄 😄",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+        )
+      ],
+    );
   }
 }

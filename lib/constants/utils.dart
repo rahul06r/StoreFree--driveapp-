@@ -5,7 +5,7 @@ Future<FilePickerResult?> pickImage() async {
   final image = await FilePicker.platform.pickFiles(
     type: FileType.custom,
     allowMultiple: true,
-    allowedExtensions: ['jpg', 'pdf', 'doc'],
+    allowedExtensions: ['jpg', 'pdf', 'doc', 'zip'],
   );
   return image;
 }
